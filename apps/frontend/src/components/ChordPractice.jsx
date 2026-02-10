@@ -33,18 +33,15 @@ export default function ChordPractice({
     const [showSuccess, setShowSuccess] = useState(false);
     const successTimeoutRef = useRef(null);
 
-    // Update difficulty in hook
     useEffect(() => {
         setDifficulty(difficulty);
     }, [difficulty, setDifficulty]);
 
-    // Check chord match when target changes or notes change
     useEffect(() => {
         if (targetChord && activeNotes.length >= 2) {
             const result = matchTargetChord(targetChord);
             setMatchResult(result);
 
-            // If chord matched correctly
             if (result.match && result.score >= 80) {
                 setShowSuccess(true);
                 setPracticeStats(prev => ({
@@ -54,7 +51,6 @@ export default function ChordPractice({
                 }));
                 onScoreUpdate?.(result);
 
-                // Clear success after animation
                 if (successTimeoutRef.current) {
                     clearTimeout(successTimeoutRef.current);
                 }
@@ -68,7 +64,6 @@ export default function ChordPractice({
         }
     }, [activeNotes, targetChord, matchTargetChord, onScoreUpdate, onPracticeComplete]);
 
-    // Cleanup
     useEffect(() => {
         return () => {
             if (successTimeoutRef.current) {
@@ -80,23 +75,22 @@ export default function ChordPractice({
     const targetChordData = targetChord ? CHORD_LIBRARY[targetChord] : null;
 
     return (
-        <div className="bg-surface/50 rounded-2xl border border-purple-500/10 overflow-hidden">
+        <div className="section-card rounded-2xl overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+            <div className="px-5 py-4 border-b border-white/[0.04] flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-green-400 animate-pulse' : 'bg-white/30'}`} />
-                    <h3 className="text-lg font-semibold text-white">Chord Practice</h3>
+                    <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-emerald-400 animate-pulse' : 'bg-white/20'}`} />
+                    <h3 className="text-base font-semibold text-white">Chord Practice</h3>
                 </div>
 
-                {/* Stats display */}
                 {practiceStats.attempts > 0 && (
-                    <div className="flex items-center gap-4 text-sm">
-                        <div className="text-white/60">
-                            <span className="text-green-400 font-bold">{practiceStats.correct}</span>
+                    <div className="flex items-center gap-4 text-xs">
+                        <div className="text-white/40">
+                            <span className="text-emerald-400 font-bold font-mono">{practiceStats.correct}</span>
                             /{practiceStats.attempts} correct
                         </div>
-                        <div className="text-white/60">
-                            Avg: <span className="text-purple-400 font-bold">
+                        <div className="text-white/40">
+                            Avg: <span className="text-violet-400 font-bold font-mono">
                                 {Math.round(practiceStats.totalScore / practiceStats.attempts)}%
                             </span>
                         </div>
@@ -104,24 +98,24 @@ export default function ChordPractice({
                 )}
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-5 space-y-5">
                 {/* Input Mode Selector */}
-                <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
                         <button
                             onClick={() => switchInputMode('midi')}
-                            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${inputMode === 'midi'
-                                    ? 'bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-lg'
-                                    : 'text-white/60 hover:text-white'
+                            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${inputMode === 'midi'
+                                ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/20'
+                                : 'text-white/40 hover:text-white/70'
                                 }`}
                         >
                             🎹 MIDI
                         </button>
                         <button
                             onClick={() => switchInputMode('mic')}
-                            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${inputMode === 'mic'
-                                    ? 'bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-lg'
-                                    : 'text-white/60 hover:text-white'
+                            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${inputMode === 'mic'
+                                ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/20'
+                                : 'text-white/40 hover:text-white/70'
                                 }`}
                         >
                             🎤 Microphone
@@ -136,10 +130,10 @@ export default function ChordPractice({
                                 const input = midiInputs.find(i => i.id === e.target.value);
                                 if (input) selectMidiInput(input);
                             }}
-                            className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500"
+                            className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white outline-none focus:ring-1 focus:ring-violet-500/50"
                         >
                             {midiInputs.map(input => (
-                                <option key={input.id} value={input.id} className="bg-gray-900">
+                                <option key={input.id} value={input.id} className="bg-bg-secondary">
                                     {input.name}
                                 </option>
                             ))}
@@ -149,9 +143,9 @@ export default function ChordPractice({
                     {/* Start/Stop Button */}
                     <button
                         onClick={isListening ? stopListening : startListening}
-                        className={`px-6 py-2 rounded-full font-medium text-sm transition-all ${isListening
-                                ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                                : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                        className={`px-5 py-2 rounded-lg font-medium text-sm transition-all ${isListening
+                            ? 'bg-rose-500/10 text-rose-400 ring-1 ring-rose-500/20 hover:bg-rose-500/15'
+                            : 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20 hover:bg-emerald-500/15'
                             }`}
                     >
                         {isListening ? '⏹ Stop' : '▶ Start'}
@@ -160,29 +154,29 @@ export default function ChordPractice({
 
                 {/* Error Display */}
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400 text-sm">
+                    <div className="bg-rose-500/[0.06] border border-rose-500/15 rounded-xl p-4 text-rose-400 text-sm">
                         {error}
                     </div>
                 )}
 
                 {/* Main Practice Area */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Target Chord */}
-                    <div className="bg-black/20 rounded-xl p-6 text-center">
-                        <div className="text-sm text-white/50 mb-2">Target Chord</div>
+                    <div className="bg-white/[0.02] rounded-xl p-6 text-center border border-white/[0.04]">
+                        <div className="text-[10px] text-white/30 mb-3 uppercase tracking-wider font-medium">Target Chord</div>
                         {targetChord ? (
                             <>
-                                <div className="text-6xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400">
+                                <div className="text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400 mb-3">
                                     {targetChord}
                                 </div>
                                 {targetChordData && (
-                                    <div className="flex items-center justify-center gap-2 mt-4">
+                                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
                                         {targetChordData.notes.map(note => (
                                             <span
                                                 key={note}
-                                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeNotes.some(n => n.replace(/[0-9]/g, '').toUpperCase() === note)
-                                                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
-                                                        : 'bg-white/10 text-white/60'
+                                                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${activeNotes.some(n => n.replace(/[0-9]/g, '').toUpperCase() === note)
+                                                    ? 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/25 shadow-lg shadow-emerald-500/20'
+                                                    : 'bg-white/[0.04] text-white/40 border border-white/[0.06]'
                                                     }`}
                                             >
                                                 {note}
@@ -192,46 +186,45 @@ export default function ChordPractice({
                                 )}
                             </>
                         ) : (
-                            <div className="text-4xl text-white/30">—</div>
+                            <div className="text-3xl text-white/15">—</div>
                         )}
                     </div>
 
                     {/* Detected/Played */}
-                    <div className={`relative bg-black/20 rounded-xl p-6 text-center transition-all ${showSuccess ? 'ring-4 ring-green-500/50 bg-green-500/10' : ''
+                    <div className={`relative bg-white/[0.02] rounded-xl p-6 text-center border transition-all ${showSuccess ? 'border-emerald-500/30 bg-emerald-500/[0.04]' : 'border-white/[0.04]'
                         }`}>
                         {/* Success overlay */}
                         {showSuccess && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-green-500/20 rounded-xl z-10">
-                                <div className="text-4xl animate-bounce">✓</div>
+                            <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/10 rounded-xl z-10">
+                                <div className="text-4xl">✓</div>
                             </div>
                         )}
 
-                        <div className="text-sm text-white/50 mb-2">Your Playing</div>
+                        <div className="text-[10px] text-white/30 mb-3 uppercase tracking-wider font-medium">Your Playing</div>
                         {detectedChord ? (
                             <>
-                                <div className={`text-6xl font-display font-bold ${matchResult?.match ? 'text-green-400' : 'text-amber-400'
+                                <div className={`text-5xl font-display font-bold mb-2 ${matchResult?.match ? 'text-emerald-400' : 'text-amber-400'
                                     }`}>
                                     {detectedChord.chord}
                                 </div>
-                                <div className="text-sm text-white/50 mt-2">
+                                <div className="text-xs text-white/30 font-mono">
                                     {matchResult?.score || detectedChord.score}% match
                                 </div>
                             </>
                         ) : activeNotes.length > 0 ? (
-                            <div className="text-3xl text-white/40">...</div>
+                            <div className="text-2xl text-white/20 py-2">...</div>
                         ) : (
-                            <div className="text-4xl text-white/30">
+                            <div className="text-3xl text-white/15 py-1">
                                 {isListening ? '🎵' : '—'}
                             </div>
                         )}
 
-                        {/* Active Notes */}
                         {activeNotes.length > 0 && (
-                            <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
+                            <div className="flex items-center justify-center gap-1.5 mt-3 flex-wrap">
                                 {activeNotes.map((note, i) => (
                                     <span
                                         key={`${note}-${i}`}
-                                        className="px-3 py-1.5 rounded-lg bg-purple-500/30 text-purple-300 text-sm font-medium"
+                                        className="px-2 py-1 rounded-lg bg-violet-500/15 text-violet-300 text-[10px] font-medium ring-1 ring-violet-500/10"
                                     >
                                         {note.replace(/[0-9]/g, '')}
                                     </span>
@@ -244,35 +237,34 @@ export default function ChordPractice({
                 {/* Match Feedback */}
                 {matchResult && targetChord && (
                     <div className={`rounded-xl p-4 ${matchResult.match
-                            ? 'bg-green-500/10 border border-green-500/20'
-                            : 'bg-amber-500/10 border border-amber-500/20'
+                        ? 'bg-emerald-500/[0.06] border border-emerald-500/15'
+                        : 'bg-amber-500/[0.06] border border-amber-500/15'
                         }`}>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className={`text-2xl ${matchResult.match ? 'text-green-400' : 'text-amber-400'}`}>
+                                <div className={`text-xl ${matchResult.match ? 'text-emerald-400' : 'text-amber-400'}`}>
                                     {matchResult.match ? '✓' : '⚠'}
                                 </div>
                                 <div>
-                                    <div className={`font-medium ${matchResult.match ? 'text-green-400' : 'text-amber-400'}`}>
+                                    <div className={`font-medium text-sm ${matchResult.match ? 'text-emerald-400' : 'text-amber-400'}`}>
                                         {matchResult.match ? 'Perfect!' : `${matchResult.score}% Accuracy`}
                                     </div>
                                     {matchResult.missingNotes.length > 0 && (
-                                        <div className="text-sm text-white/50">
+                                        <div className="text-xs text-white/30 mt-0.5">
                                             Missing: {matchResult.missingNotes.join(', ')}
                                         </div>
                                     )}
                                     {matchResult.extraNotes.length > 0 && (
-                                        <div className="text-sm text-white/50">
+                                        <div className="text-xs text-white/30 mt-0.5">
                                             Extra: {matchResult.extraNotes.join(', ')}
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Score */}
                             <div className="text-right">
-                                <div className="text-3xl font-bold text-white">{matchResult.score}%</div>
-                                <div className="text-xs text-white/50">Score</div>
+                                <div className="text-2xl font-bold text-white font-mono">{matchResult.score}%</div>
+                                <div className="text-[10px] text-white/25 uppercase tracking-wider">Score</div>
                             </div>
                         </div>
                     </div>
@@ -280,7 +272,7 @@ export default function ChordPractice({
 
                 {/* Instructions */}
                 {!isListening && (
-                    <div className="text-center text-white/40 text-sm">
+                    <div className="text-center text-white/25 text-xs py-2">
                         {inputMode === 'midi' ? (
                             midiInputs.length === 0
                                 ? 'Connect a MIDI device to get started'

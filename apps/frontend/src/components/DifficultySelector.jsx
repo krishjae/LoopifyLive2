@@ -1,121 +1,109 @@
-import { getChordNamesForLevel } from "../data/chordLibrary";
-import ChordTooltip from "./ChordTooltip";
+import { getChordsByDifficulty } from "../data/chordLibrary";
 
 const LEVELS = [
     {
         level: 1,
         name: "Beginner",
-        desc: "Basic major chords",
-        color: "from-green-400 to-green-600",
-        chordTypes: "C, G, D, A, E"
+        desc: "Simple open chords",
+        color: "emerald"
     },
     {
         level: 2,
-        name: "Easy",
+        name: "Intermediate",
         desc: "Major & minor chords",
-        color: "from-teal-400 to-teal-600",
-        chordTypes: "+ Am, Em, Dm, F"
+        color: "violet"
     },
     {
         level: 3,
-        name: "Medium",
-        desc: "Adding 7th chords",
-        color: "from-purple-400 to-purple-600",
-        chordTypes: "+ G7, Am7, Cmaj7"
+        name: "Advanced",
+        desc: "7th chords & extensions",
+        color: "fuchsia"
     },
     {
         level: 4,
-        name: "Hard",
-        desc: "Bar & suspended chords",
-        color: "from-orange-400 to-orange-600",
-        chordTypes: "+ sus2, sus4, add9"
+        name: "Expert",
+        desc: "Jazz chords & voicings",
+        color: "amber"
     },
     {
         level: 5,
-        name: "Expert",
-        desc: "Jazz voicings",
-        color: "from-red-400 to-red-600",
-        chordTypes: "+ 9ths, 13ths, dim7"
+        name: "Master",
+        desc: "All chord types",
+        color: "rose"
     },
 ];
 
-export default function DifficultySelector({ value = 1, onChange, showChords = true }) {
-    const availableChords = getChordNamesForLevel(value);
-    const allChordsUpToLevel = LEVELS
-        .filter(l => l.level <= value)
-        .flatMap(l => getChordNamesForLevel(l.level));
+const colorMap = {
+    emerald: { dot: "bg-emerald-400", ring: "ring-emerald-400/30", text: "text-emerald-400", bg: "bg-emerald-500/10" },
+    violet: { dot: "bg-violet-400", ring: "ring-violet-400/30", text: "text-violet-400", bg: "bg-violet-500/10" },
+    fuchsia: { dot: "bg-fuchsia-400", ring: "ring-fuchsia-400/30", text: "text-fuchsia-400", bg: "bg-fuchsia-500/10" },
+    amber: { dot: "bg-amber-400", ring: "ring-amber-400/30", text: "text-amber-400", bg: "bg-amber-500/10" },
+    rose: { dot: "bg-rose-400", ring: "ring-rose-400/30", text: "text-rose-400", bg: "bg-rose-500/10" },
+};
+
+export default function DifficultySelector({ value, onChange, showChords = false }) {
+    const available = showChords ? Object.keys(getChordsByDifficulty(value)) : [];
 
     return (
-        <div className="bg-surface/50 rounded-2xl p-6 border border-purple-500/10">
-            <h3 className="text-lg font-semibold text-white mb-4">Difficulty Level</h3>
+        <div className="section-card rounded-2xl p-5">
+            <div className="text-white/40 text-xs font-medium uppercase tracking-wider mb-4">Difficulty</div>
 
-            <div className="flex items-center gap-2">
-                {LEVELS.map((lvl) => (
-                    <button
-                        key={lvl.level}
-                        onClick={() => onChange?.(lvl.level)}
-                        className={`
-              flex-1 py-4 rounded-xl transition-all duration-200 relative overflow-hidden
-              ${value === lvl.level
-                                ? `bg-gradient-to-br ${lvl.color} text-white shadow-lg scale-105`
-                                : 'bg-white/5 text-white/60 hover:bg-white/10'
-                            }
-            `}
-                    >
-                        <div className="relative z-10">
-                            <div className="text-2xl font-bold">{lvl.level}</div>
-                            <div className="text-xs mt-1 opacity-80">{lvl.name}</div>
-                        </div>
+            {/* Step progress */}
+            <div className="relative flex items-center justify-between mb-6">
+                {/* Line behind dots */}
+                <div className="absolute left-0 right-0 top-1/2 h-px bg-white/[0.06]" />
 
-                        {value === lvl.level && (
-                            <div className="absolute inset-0 bg-white/10 animate-pulse" />
-                        )}
-                    </button>
-                ))}
+                {LEVELS.map((lvl) => {
+                    const c = colorMap[lvl.color];
+                    const active = lvl.level === value;
+                    const passed = lvl.level < value;
+
+                    return (
+                        <button
+                            key={lvl.level}
+                            onClick={() => onChange(lvl.level)}
+                            className={`relative z-10 flex flex-col items-center gap-2 group`}
+                        >
+                            <div
+                                className={`
+                  w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all
+                  ${active
+                                        ? `${c.dot} text-black ring-4 ${c.ring} scale-110`
+                                        : passed
+                                            ? `${c.bg} ${c.text} ring-1 ring-white/[0.06]`
+                                            : "bg-white/[0.06] text-white/30 ring-1 ring-white/[0.04]"
+                                    }
+                `}
+                            >
+                                {lvl.level}
+                            </div>
+                            <span className={`text-[10px] font-medium transition-colors ${active ? c.text : "text-white/25 group-hover:text-white/40"}`}>
+                                {lvl.name}
+                            </span>
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Description */}
-            <div className="mt-4 p-4 rounded-xl bg-white/5">
-                <div className="flex items-center justify-between mb-2">
-                    <div className="text-white font-medium">
-                        {LEVELS.find(l => l.level === value)?.name}
-                    </div>
-                    <div className="text-xs text-white/40">
-                        {allChordsUpToLevel.length} chords available
-                    </div>
-                </div>
-                <div className="text-white/60 text-sm">
-                    {LEVELS.find(l => l.level === value)?.desc}
-                </div>
+            {LEVELS.map((lvl) =>
+                lvl.level === value ? (
+                    <p key={lvl.level} className="text-white/30 text-xs mb-3">{lvl.desc}</p>
+                ) : null
+            )}
 
-                {showChords && (
-                    <div className="mt-3 pt-3 border-t border-white/10">
-                        <div className="text-xs text-white/40 mb-2">Chord types at this level:</div>
-                        <div className="text-sm text-fuchsia-400">
-                            {LEVELS.find(l => l.level === value)?.chordTypes}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Chord preview */}
-            {showChords && (
-                <div className="mt-4">
-                    <div className="text-xs text-white/40 mb-2">New chords at Level {value}:</div>
+            {/* Available chords */}
+            {showChords && available.length > 0 && (
+                <div>
+                    <div className="text-white/20 text-[10px] uppercase tracking-wider mb-2">Available Chords</div>
                     <div className="flex flex-wrap gap-1.5">
-                        {availableChords.slice(0, 10).map(chord => (
-                            <ChordTooltip key={chord} chord={chord}>
-                                <span
-                                    className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs font-medium hover:bg-purple-500/30 hover:text-purple-300 cursor-pointer transition-colors"
-                                >
-                                    {chord}
-                                </span>
-                            </ChordTooltip>
-                        ))}
-                        {availableChords.length > 10 && (
-                            <span className="px-2 py-1 text-white/40 text-xs">
-                                +{availableChords.length - 10} more
+                        {available.slice(0, 16).map((chord) => (
+                            <span key={chord} className="px-2 py-0.5 rounded text-[10px] bg-white/[0.04] text-white/35 border border-white/[0.06]">
+                                {chord}
                             </span>
+                        ))}
+                        {available.length > 16 && (
+                            <span className="text-[10px] text-white/20">+{available.length - 16}</span>
                         )}
                     </div>
                 </div>

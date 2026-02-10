@@ -18,10 +18,8 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
         stopListening
     } = usePitchDetection();
 
-    // Get scale notes
     const scaleNotes = useMemo(() => getScaleNotes(rootNote, scaleType), [rootNote, scaleType]);
 
-    // Check if detected note is in scale
     const noteStatus = useMemo(() => {
         if (!detectedNote) return null;
         const inScale = isNoteInScale(detectedNote.name, rootNote, scaleType);
@@ -32,7 +30,6 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
         };
     }, [detectedNote, rootNote, scaleType]);
 
-    // Notify parent of changes
     useMemo(() => {
         onScaleChange?.({ rootNote, scaleType, scaleNotes });
     }, [rootNote, scaleType, scaleNotes]);
@@ -42,19 +39,19 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
     }, [detectedNote]);
 
     return (
-        <div className="bg-surface/50 rounded-2xl border border-purple-500/10 overflow-hidden">
+        <div className="section-card rounded-2xl overflow-hidden">
             {/* Header */}
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 transition-colors"
+                className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition-colors"
             >
                 <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-fuchsia-400 animate-pulse' : 'bg-white/30'}`} />
-                    <h3 className="text-lg font-semibold text-white">Live Intelligence</h3>
-                    <span className="text-xs text-white/40 bg-white/5 px-2 py-1 rounded">Advanced</span>
+                    <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-fuchsia-400 animate-pulse' : 'bg-white/20'}`} />
+                    <h3 className="text-base font-semibold text-white">Live Intelligence</h3>
+                    <span className="text-[10px] text-white/30 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/[0.04]">Advanced</span>
                 </div>
                 <svg
-                    className={`w-5 h-5 text-white/60 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 text-white/30 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -64,18 +61,17 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
             </button>
 
             {isExpanded && (
-                <div className="px-6 pb-6 space-y-6">
-                    {/* Pitch Detection */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Microphone control */}
-                        <div className="bg-black/20 rounded-xl p-5">
+                <div className="px-5 pb-5 space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Pitch Detection */}
+                        <div className="bg-white/[0.02] rounded-xl p-5 border border-white/[0.04]">
                             <div className="flex items-center justify-between mb-4">
-                                <span className="text-sm text-white/70">Pitch Detection</span>
+                                <span className="text-xs text-white/40 uppercase tracking-wider font-medium">Pitch Detection</span>
                                 <button
                                     onClick={isListening ? stopListening : startListening}
-                                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${isListening
-                                            ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                                            : 'bg-fuchsia-500/20 text-fuchsia-400 hover:bg-fuchsia-500/30'
+                                    className={`px-4 py-1.5 rounded-lg font-medium text-xs transition-all ${isListening
+                                        ? 'bg-rose-500/10 text-rose-400 ring-1 ring-rose-500/20 hover:bg-rose-500/15'
+                                        : 'bg-violet-500/10 text-violet-400 ring-1 ring-violet-500/20 hover:bg-violet-500/15'
                                         }`}
                                 >
                                     {isListening ? '⏹ Stop' : '🎤 Start'}
@@ -83,7 +79,7 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
                             </div>
 
                             {error && (
-                                <div className="text-red-400 text-sm mb-4 bg-red-500/10 p-3 rounded-lg">
+                                <div className="text-rose-400 text-xs mb-4 bg-rose-500/[0.06] p-3 rounded-xl border border-rose-500/15">
                                     {error}
                                 </div>
                             )}
@@ -92,25 +88,25 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
                             <div className="flex items-center justify-center py-6">
                                 {detectedNote ? (
                                     <div className="text-center">
-                                        <div className={`text-6xl font-bold mb-2 ${noteStatus?.inScale ? 'text-green-400' : 'text-red-400'
+                                        <div className={`text-5xl font-bold font-display mb-2 ${noteStatus?.inScale ? 'text-emerald-400' : 'text-rose-400'
                                             }`}>
                                             {detectedNote.name}
-                                            <span className="text-2xl text-white/40">{detectedNote.octave}</span>
+                                            <span className="text-xl text-white/25">{detectedNote.octave}</span>
                                         </div>
-                                        <div className="text-white/50 text-sm">
+                                        <div className="text-white/30 text-xs font-mono">
                                             {frequency?.toFixed(1)} Hz
                                         </div>
-                                        <div className={`text-sm mt-2 px-3 py-1 rounded-full inline-block ${noteStatus?.inScale
-                                                ? 'bg-green-500/20 text-green-400'
-                                                : 'bg-red-500/20 text-red-400'
+                                        <div className={`text-xs mt-2 px-3 py-1 rounded-lg inline-block ${noteStatus?.inScale
+                                            ? 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20'
+                                            : 'bg-rose-500/10 text-rose-400 ring-1 ring-rose-500/20'
                                             }`}>
                                             {noteStatus?.message}
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-white/30 text-center">
-                                        <div className="text-4xl mb-2">🎵</div>
-                                        <div className="text-sm">
+                                    <div className="text-white/15 text-center">
+                                        <div className="text-3xl mb-2">🎵</div>
+                                        <div className="text-xs">
                                             {isListening ? 'Listening for pitch...' : 'Click Start to begin'}
                                         </div>
                                     </div>
@@ -119,23 +115,23 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
 
                             {/* Pitch meter */}
                             {detectedNote && (
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-xs text-white/40">
+                                <div className="space-y-1.5">
+                                    <div className="flex justify-between text-[10px] text-white/25">
                                         <span>Flat</span>
                                         <span>In Tune</span>
                                         <span>Sharp</span>
                                     </div>
-                                    <div className="h-2 bg-white/10 rounded-full overflow-hidden relative">
-                                        <div className="absolute inset-y-0 left-1/2 w-1 bg-green-400/50 -translate-x-1/2" />
+                                    <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden relative">
+                                        <div className="absolute inset-y-0 left-1/2 w-px bg-emerald-400/30 -translate-x-1/2" />
                                         <div
-                                            className={`absolute top-0 bottom-0 w-3 rounded-full transition-all ${Math.abs(detectedNote.cents) < 10 ? 'bg-green-400' : 'bg-amber-400'
+                                            className={`absolute top-0 bottom-0 w-2.5 rounded-full transition-all ${Math.abs(detectedNote.cents) < 10 ? 'bg-emerald-400' : 'bg-amber-400'
                                                 }`}
                                             style={{
-                                                left: `calc(50% + ${detectedNote.cents}% - 6px)`,
+                                                left: `calc(50% + ${detectedNote.cents}% - 5px)`,
                                             }}
                                         />
                                     </div>
-                                    <div className="text-center text-xs text-white/50">
+                                    <div className="text-center text-[10px] text-white/25 font-mono">
                                         {detectedNote.cents > 0 ? '+' : ''}{detectedNote.cents} cents
                                     </div>
                                 </div>
@@ -143,20 +139,19 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
                         </div>
 
                         {/* Scale Selection */}
-                        <div className="bg-black/20 rounded-xl p-5">
-                            <div className="text-sm text-white/70 mb-4">Scale Settings</div>
+                        <div className="bg-white/[0.02] rounded-xl p-5 border border-white/[0.04]">
+                            <div className="text-xs text-white/40 uppercase tracking-wider font-medium mb-4">Scale Settings</div>
 
-                            {/* Root note selector */}
                             <div className="mb-4">
-                                <label className="block text-xs text-white/50 mb-2">Root Note</label>
-                                <div className="grid grid-cols-6 gap-1.5">
+                                <label className="block text-[10px] text-white/25 uppercase tracking-wider mb-2">Root Note</label>
+                                <div className="grid grid-cols-6 gap-1">
                                     {NOTE_NAMES.map(note => (
                                         <button
                                             key={note}
                                             onClick={() => setRootNote(note)}
-                                            className={`py-2 rounded text-sm font-medium transition-all ${rootNote === note
-                                                    ? 'bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-lg shadow-purple-500/30'
-                                                    : 'bg-white/10 text-white/60 hover:bg-white/20 hover:text-white'
+                                            className={`py-1.5 rounded-lg text-xs font-medium transition-all ${rootNote === note
+                                                ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-md shadow-violet-500/20'
+                                                : 'bg-white/[0.04] text-white/40 hover:bg-white/[0.08] hover:text-white/70 border border-white/[0.04]'
                                                 }`}
                                         >
                                             {note}
@@ -165,17 +160,16 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
                                 </div>
                             </div>
 
-                            {/* Scale type selector */}
                             <div className="mb-4">
-                                <label className="block text-xs text-white/50 mb-2">Scale Type</label>
-                                <div className="grid grid-cols-3 gap-1.5">
+                                <label className="block text-[10px] text-white/25 uppercase tracking-wider mb-2">Scale Type</label>
+                                <div className="grid grid-cols-3 gap-1">
                                     {Object.entries(SCALES).map(([key, scale]) => (
                                         <button
                                             key={key}
                                             onClick={() => setScaleType(key)}
-                                            className={`py-2 px-2 rounded text-xs font-medium transition-all truncate ${scaleType === key
-                                                    ? 'bg-fuchsia-500/30 text-fuchsia-300 ring-1 ring-fuchsia-500/50'
-                                                    : 'bg-white/10 text-white/60 hover:bg-white/20'
+                                            className={`py-1.5 px-2 rounded-lg text-[11px] font-medium transition-all truncate ${scaleType === key
+                                                ? 'bg-fuchsia-500/15 text-fuchsia-300 ring-1 ring-fuchsia-500/30'
+                                                : 'bg-white/[0.04] text-white/40 hover:bg-white/[0.08] border border-white/[0.04]'
                                                 }`}
                                         >
                                             {scale.name}
@@ -184,20 +178,21 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
                                 </div>
                             </div>
 
-                            {/* Scale notes display */}
                             <div>
-                                <label className="block text-xs text-white/50 mb-2">Safe Notes in {rootNote} {SCALES[scaleType].name}</label>
-                                <div className="flex flex-wrap gap-2">
+                                <label className="block text-[10px] text-white/25 uppercase tracking-wider mb-2">
+                                    Safe Notes in {rootNote} {SCALES[scaleType].name}
+                                </label>
+                                <div className="flex flex-wrap gap-1.5">
                                     {scaleNotes.map((note, i) => (
                                         <span
                                             key={note}
-                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium ${i === 0
-                                                    ? 'bg-amber-500/30 text-amber-300'
-                                                    : 'bg-green-500/20 text-green-400'
+                                            className={`px-2.5 py-1 rounded-lg text-xs font-medium ${i === 0
+                                                ? 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/20'
+                                                : 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/15'
                                                 }`}
                                         >
                                             {note}
-                                            {i === 0 && <span className="text-xs ml-1 opacity-60">(root)</span>}
+                                            {i === 0 && <span className="text-[9px] ml-1 opacity-50">(root)</span>}
                                         </span>
                                     ))}
                                 </div>
@@ -205,17 +200,17 @@ export default function LiveIntelligence({ onScaleChange, onDetectedNote }) {
                         </div>
                     </div>
 
-                    {/* Live feedback info */}
-                    <div className="bg-gradient-to-r from-purple-500/10 to-fuchsia-500/10 rounded-xl p-4 border border-purple-500/20">
+                    {/* Pro tip */}
+                    <div className="bg-gradient-to-r from-violet-500/[0.05] to-fuchsia-500/[0.05] rounded-xl p-4 border border-violet-500/10">
                         <div className="flex items-start gap-3">
-                            <div className="text-2xl">💡</div>
+                            <div className="text-lg">💡</div>
                             <div>
-                                <div className="text-sm font-medium text-white mb-1">Pro Tip</div>
-                                <p className="text-xs text-white/60 leading-relaxed">
+                                <div className="text-xs font-medium text-white/60 mb-1">Pro Tip</div>
+                                <p className="text-[11px] text-white/35 leading-relaxed">
                                     Enable pitch detection and select your scale. Notes highlighted in
-                                    <span className="text-green-400 font-medium"> green </span>
+                                    <span className="text-emerald-400 font-medium"> green </span>
                                     are safe to play. Notes in
-                                    <span className="text-red-400 font-medium"> red </span>
+                                    <span className="text-rose-400 font-medium"> red </span>
                                     are outside your selected scale. Perfect for improvisation practice!
                                 </p>
                             </div>

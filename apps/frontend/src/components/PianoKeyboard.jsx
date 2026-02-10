@@ -22,7 +22,6 @@ export default function PianoKeyboard({
 }) {
     const [pressedKeys, setPressedKeys] = useState(new Set());
 
-    // Normalize note names (remove octave numbers)
     const normalizedHighlights = highlightedNotes.map(n =>
         n.replace(/[0-9]/g, '').toUpperCase()
     );
@@ -49,8 +48,6 @@ export default function PianoKeyboard({
         const fullNote = `${note}${octave}`;
         setPressedKeys(prev => new Set([...prev, fullNote]));
         onNoteClick?.(fullNote);
-
-        // Remove after animation
         setTimeout(() => {
             setPressedKeys(prev => {
                 const next = new Set(prev);
@@ -70,25 +67,25 @@ export default function PianoKeyboard({
         const detected = isDetected(note);
         const pressed = isPressed(note, octave);
 
-        let baseClass = "relative w-12 h-36 rounded-b-lg border transition-all duration-100 flex flex-col items-center justify-end pb-2 ";
+        let baseClass = "relative w-12 h-36 rounded-b-lg border transition-all duration-150 flex flex-col items-center justify-end pb-2 cursor-pointer ";
 
         if (detected) {
-            baseClass += "bg-gradient-to-b from-amber-300 to-amber-500 border-amber-400 shadow-lg shadow-amber-500/50 animate-glow-pulse ";
+            baseClass += "bg-gradient-to-b from-amber-200 to-amber-400 border-amber-300/50 shadow-lg shadow-amber-400/40 animate-glow-pulse ";
         } else if (highlighted) {
-            baseClass += "bg-gradient-to-b from-purple-400 to-purple-600 border-purple-400 shadow-lg shadow-purple-500/50 ";
+            baseClass += "bg-gradient-to-b from-violet-300 to-violet-500 border-violet-400/50 shadow-lg shadow-violet-500/40 ";
         } else if (showScaleGuide && inScale) {
-            baseClass += "bg-gradient-to-b from-green-300 to-green-400 border-green-400 shadow-md shadow-green-500/30 ";
+            baseClass += "bg-gradient-to-b from-emerald-200 to-emerald-400 border-emerald-300/50 shadow-md shadow-emerald-400/30 ";
         } else if (showScaleGuide && !inScale && normalizedScaleNotes.length > 0) {
-            baseClass += "bg-gradient-to-b from-red-200 to-red-300 border-red-300 opacity-70 ";
+            baseClass += "bg-gradient-to-b from-rose-100 to-rose-200 border-rose-200/50 opacity-60 ";
         } else {
-            baseClass += "bg-gradient-to-b from-white to-gray-100 border-white/20 ";
+            baseClass += "bg-gradient-to-b from-white to-gray-50 border-gray-200/30 shadow-sm ";
         }
 
         if (pressed) {
-            baseClass += "translate-y-1 brightness-90 ";
+            baseClass += "translate-y-0.5 shadow-none ";
         }
 
-        baseClass += "hover:brightness-95 active:translate-y-1";
+        baseClass += "hover:brightness-[0.97] active:translate-y-0.5 active:shadow-none";
 
         return baseClass;
     }
@@ -99,57 +96,57 @@ export default function PianoKeyboard({
         const detected = isDetected(note);
         const pressed = isPressed(note, octave);
 
-        let baseClass = "absolute w-8 h-24 rounded-b-md z-10 pointer-events-auto transition-all duration-100 flex items-end justify-center pb-1 ";
+        let baseClass = "absolute w-8 h-[5.5rem] rounded-b-md z-10 pointer-events-auto transition-all duration-150 flex items-end justify-center pb-1 cursor-pointer ";
 
         if (detected) {
             baseClass += "bg-gradient-to-b from-amber-400 to-amber-600 shadow-lg shadow-amber-500/50 animate-glow-pulse ";
         } else if (highlighted) {
-            baseClass += "bg-gradient-to-b from-fuchsia-400 to-fuchsia-600 shadow-lg shadow-fuchsia-500/50 ";
+            baseClass += "bg-gradient-to-b from-fuchsia-400 to-fuchsia-600 shadow-lg shadow-fuchsia-500/40 ";
         } else if (showScaleGuide && inScale) {
-            baseClass += "bg-gradient-to-b from-green-500 to-green-700 shadow-md shadow-green-500/30 ";
+            baseClass += "bg-gradient-to-b from-emerald-500 to-emerald-700 shadow-md shadow-emerald-500/30 ";
         } else if (showScaleGuide && !inScale && normalizedScaleNotes.length > 0) {
-            baseClass += "bg-gradient-to-b from-red-600 to-red-800 opacity-70 ";
+            baseClass += "bg-gradient-to-b from-rose-600 to-rose-800 opacity-60 ";
         } else {
-            baseClass += "bg-gradient-to-b from-gray-800 to-black ";
+            baseClass += "bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 shadow-md shadow-black/40 ";
         }
 
         if (pressed) {
-            baseClass += "translate-y-1 brightness-90 ";
+            baseClass += "translate-y-0.5 shadow-none ";
         }
 
-        baseClass += "hover:brightness-110 active:translate-y-1";
+        baseClass += "hover:brightness-125 active:translate-y-0.5";
 
         return baseClass;
     }
 
     return (
-        <div className="bg-surface/50 rounded-2xl p-6 border border-purple-500/10">
+        <div className="section-card rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold text-white">Piano Keyboard</h3>
+                    <h3 className="text-base font-semibold text-white">Piano Keyboard</h3>
                     {chordName && (
-                        <div className={`px-3 py-1 rounded-lg font-bold text-lg ${isSimplified
-                                ? 'bg-amber-500/20 text-amber-300'
-                                : 'bg-purple-500/20 text-purple-300'
+                        <div className={`px-3 py-1 rounded-lg font-bold text-sm ${isSimplified
+                            ? 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/20'
+                            : 'bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/20'
                             }`}>
                             {chordName}
-                            {isSimplified && <span className="text-xs ml-1 opacity-70">(simplified)</span>}
+                            {isSimplified && <span className="text-[10px] ml-1 opacity-60">(simplified)</span>}
                         </div>
                     )}
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     {detectedNote && (
-                        <div className="flex items-center gap-2 bg-amber-500/20 px-3 py-1.5 rounded-lg">
-                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                            <span className="text-amber-300 font-medium text-sm">
+                        <div className="flex items-center gap-2 bg-amber-500/10 px-3 py-1.5 rounded-lg ring-1 ring-amber-500/20">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            <span className="text-amber-300 font-medium text-xs font-mono">
                                 {detectedNote.name}{detectedNote.octave}
                             </span>
                         </div>
                     )}
                     {highlightedNotes.length > 0 && (
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1">
                             {highlightedNotes.slice(0, 4).map(note => (
-                                <span key={note} className="px-2 py-1 rounded bg-purple-500/30 text-purple-300 text-sm">
+                                <span key={note} className="px-2 py-1 rounded bg-violet-500/15 text-violet-300 text-[10px] font-medium ring-1 ring-violet-500/10">
                                     {note}
                                 </span>
                             ))}
@@ -160,19 +157,19 @@ export default function PianoKeyboard({
 
             {/* Scale guide legend */}
             {showScaleGuide && normalizedScaleNotes.length > 0 && (
-                <div className="flex items-center gap-4 mb-4 text-xs">
+                <div className="flex items-center gap-4 mb-4 text-[10px]">
                     <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded bg-green-400" />
-                        <span className="text-white/60">Safe notes</span>
+                        <div className="w-2.5 h-2.5 rounded bg-emerald-400" />
+                        <span className="text-white/40">Safe notes</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded bg-red-400" />
-                        <span className="text-white/60">Avoid</span>
+                        <div className="w-2.5 h-2.5 rounded bg-rose-400" />
+                        <span className="text-white/40">Avoid</span>
                     </div>
                     {detectedNote && (
                         <div className="flex items-center gap-1.5">
-                            <div className="w-3 h-3 rounded bg-amber-400 animate-pulse" />
-                            <span className="text-white/60">Detected</span>
+                            <div className="w-2.5 h-2.5 rounded bg-amber-400 animate-pulse" />
+                            <span className="text-white/40">Detected</span>
                         </div>
                     )}
                 </div>
@@ -190,9 +187,9 @@ export default function PianoKeyboard({
                                     className={getWhiteKeyStyle(note, octaveIdx + 4)}
                                 >
                                     {showLabels && (
-                                        <span className={`text-xs font-medium ${isHighlighted(note) || isDetected(note) || (showScaleGuide && isInScale(note))
+                                        <span className={`text-[10px] font-medium ${isHighlighted(note) || isDetected(note) || (showScaleGuide && isInScale(note))
                                             ? 'text-white'
-                                            : 'text-gray-600'
+                                            : 'text-gray-500'
                                             }`}>
                                             {note}
                                         </span>
@@ -216,7 +213,7 @@ export default function PianoKeyboard({
                                         className={getBlackKeyStyle(note, octaveIdx + 4)}
                                     >
                                         {showLabels && (
-                                            <span className={`text-xs font-medium ${isHighlighted(note) || isDetected(note) || (showScaleGuide && isInScale(note))
+                                            <span className={`text-[9px] font-medium ${isHighlighted(note) || isDetected(note) || (showScaleGuide && isInScale(note))
                                                 ? 'text-white'
                                                 : 'text-gray-400'
                                                 }`}>

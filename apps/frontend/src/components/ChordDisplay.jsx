@@ -1,89 +1,86 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 
-export default function ChordDisplay({
-    chords = [],
-    currentTime = 0,
-    onChordClick
-}) {
+export default function ChordDisplay({ chords, currentTime, onChordClick }) {
     const [activeChordIndex, setActiveChordIndex] = useState(0);
+    const activeRef = useRef(null);
+    const scrollRef = useRef(null);
 
-    // Sync with audio playback time
     useEffect(() => {
-        if (!chords.length) return;
-
+        if (!chords?.length) return;
         const idx = chords.findIndex((c, i) => {
             const next = chords[i + 1];
             return currentTime >= c.startTime && (!next || currentTime < next.startTime);
         });
-
         if (idx !== -1 && idx !== activeChordIndex) {
             setActiveChordIndex(idx);
         }
     }, [currentTime, chords]);
 
-    if (!chords.length) {
-        return (
-            <div className="bg-surface/50 rounded-2xl p-6 border border-white/10 text-center text-white/50">
-                Upload a song to detect chords
-            </div>
-        );
-    }
+    useEffect(() => {
+        if (activeRef.current && scrollRef.current) {
+            activeRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center"
+            });
+        }
+    }, [activeChordIndex]);
 
-    const activeChord = chords[activeChordIndex];
+    const totalDuration = chords?.length
+        ? chords[chords.length - 1]?.startTime + 4
+        : 1;
 
     return (
-        <div className="bg-surface/50 rounded-2xl p-6 border border-white/10">
-            {/* Current chord */}
-            <div className="text-center mb-6">
-                <div className="text-sm text-white/50 mb-2">Now Playing</div>
-                <div className="text-7xl font-display font-bold bg-gradient-to-r from-purple-400 to-green-400 bg-clip-text text-transparent">
-                    {activeChord?.chord || '-'}
+        <div className="section-card rounded-2xl p-5">
+            {/* Now Playing */}
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-white/40 text-xs font-medium uppercase tracking-wider">Now Playing</span>
                 </div>
-                {activeChord?.notes && (
-                    <div className="flex items-center justify-center gap-2 mt-3">
-                        {activeChord.notes.map((note, i) => (
-                            <span
-                                key={i}
-                                className="px-3 py-1 rounded-full bg-white/10 text-white/80 text-sm"
-                            >
-                                {note}
-                            </span>
-                        ))}
-                    </div>
-                )}
+                <span className="text-white/20 text-xs font-mono">{chords?.length || 0} chords</span>
             </div>
 
-            {/* Chord progression timeline */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2">
-                {chords.map((c, i) => (
-                    <button
-                        key={i}
-                        onClick={() => {
-                            setActiveChordIndex(i);
-                            onChordClick?.(c, i);
-                        }}
-                        className={`
-              flex-shrink-0 px-4 py-3 rounded-xl transition-all duration-200
-              ${i === activeChordIndex
-                                ? 'bg-gradient-to-r from-purple-500 to-green-500 text-white scale-110 shadow-lg'
-                                : 'bg-white/5 text-white/60 hover:bg-white/10'
-                            }
-            `}
-                    >
-                        <div className="text-lg font-bold">{c.chord}</div>
-                        <div className="text-xs opacity-60">{c.duration}s</div>
-                    </button>
-                ))}
+            {/* Current chord big display */}
+            <div className="text-center py-5 mb-4">
+                <div className="text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300 mb-1">
+                    {chords?.[activeChordIndex]?.chord || "—"}
+                </div>
+                <div className="text-[10px] font-mono text-white/25">
+                    {chords?.[activeChordIndex] && `${chords[activeChordIndex].startTime.toFixed(1)}s`}
+                </div>
             </div>
 
             {/* Progress bar */}
-            <div className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="w-full h-1 rounded-full bg-white/[0.06] mb-4 overflow-hidden">
                 <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-green-500 transition-all duration-300"
-                    style={{
-                        width: `${(activeChordIndex / Math.max(chords.length - 1, 1)) * 100}%`
-                    }}
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-300"
+                    style={{ width: `${(currentTime / totalDuration) * 100}%` }}
                 />
+            </div>
+
+            {/* Chord pills timeline */}
+            <div className="flex flex-wrap gap-1.5" ref={scrollRef}>
+                {chords?.map((chord, idx) => (
+                    <button
+                        key={idx}
+                        ref={idx === activeChordIndex ? activeRef : null}
+                        onClick={() => onChordClick?.(chord, idx)}
+                        className={`
+              inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
+              transition-all duration-200 cursor-pointer
+              ${idx === activeChordIndex
+                                ? "bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/20"
+                                : idx < activeChordIndex
+                                    ? "bg-white/[0.04] text-white/30"
+                                    : "bg-white/[0.03] text-white/40 hover:bg-white/[0.06]"
+                            }
+            `}
+                    >
+                        <span className="text-[10px] opacity-50">{idx + 1}</span>
+                        {chord.chord}
+                    </button>
+                ))}
             </div>
         </div>
     );

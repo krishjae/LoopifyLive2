@@ -45,34 +45,34 @@ export default function ChordTooltip({ chord, children }) {
                         transform: 'translate(-50%, -100%)'
                     }}
                 >
-                    <div className="bg-gray-900/95 backdrop-blur-lg border border-purple-500/30 rounded-xl p-4 shadow-2xl shadow-purple-500/20 min-w-[280px]">
+                    <div className="glass-elevated rounded-2xl p-4 shadow-2xl min-w-[280px] border border-violet-500/15">
                         {/* Header */}
-                        <div className="text-center mb-3 pb-2 border-b border-white/10">
-                            <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400">
+                        <div className="text-center mb-3 pb-2 border-b border-white/[0.06]">
+                            <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
                                 {chord}
                             </div>
-                            <div className="text-xs text-white/50 mt-1">
-                                Notes: {chordData.notes.join(' - ')}
+                            <div className="text-[10px] text-white/35 mt-1 font-mono">
+                                {chordData.notes.join(' — ')}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             {/* Guitar Diagram */}
                             <div>
-                                <div className="text-xs text-white/50 mb-2 text-center">🎸 Guitar</div>
+                                <div className="text-[10px] text-white/35 mb-2 text-center uppercase tracking-wider">🎸 Guitar</div>
                                 <GuitarMiniDiagram fingering={chordData.guitar?.fingering} />
                             </div>
 
                             {/* Piano Diagram */}
                             <div>
-                                <div className="text-xs text-white/50 mb-2 text-center">🎹 Piano</div>
+                                <div className="text-[10px] text-white/35 mb-2 text-center uppercase tracking-wider">🎹 Piano</div>
                                 <PianoMiniDiagram notes={chordData.notes} />
                             </div>
                         </div>
 
                         {/* Arrow */}
-                        <div className="absolute left-1/2 -translate-x-1/2 -bottom-2">
-                            <div className="w-4 h-4 bg-gray-900/95 border-r border-b border-purple-500/30 transform rotate-45" />
+                        <div className="absolute left-1/2 -translate-x-1/2 -bottom-1.5">
+                            <div className="w-3 h-3 glass-elevated border-r border-b border-violet-500/15 transform rotate-45" />
                         </div>
                     </div>
                 </div>
@@ -81,11 +81,9 @@ export default function ChordTooltip({ chord, children }) {
     );
 }
 
-// Mini guitar fretboard diagram
 function GuitarMiniDiagram({ fingering }) {
-    if (!fingering) return <div className="text-white/30 text-xs text-center">N/A</div>;
+    if (!fingering) return <div className="text-white/20 text-[10px] text-center">N/A</div>;
 
-    // Find the fret range to display
     const validFrets = fingering.filter(f => f >= 0);
     const minFret = Math.max(0, Math.min(...validFrets) - 1);
     const maxFret = Math.min(5, Math.max(...validFrets, minFret + 4));
@@ -93,41 +91,34 @@ function GuitarMiniDiagram({ fingering }) {
 
     return (
         <div className="flex flex-col items-center">
-            {/* Fret numbers */}
             <div className="flex justify-center gap-0.5 mb-1">
                 {Array.from({ length: fretCount }, (_, i) => (
-                    <div key={i} className="w-5 text-center text-[8px] text-white/40">
+                    <div key={i} className="w-5 text-center text-[7px] text-white/25 font-mono">
                         {minFret + i || 'O'}
                     </div>
                 ))}
             </div>
 
-            {/* Strings */}
-            <div className="relative border border-white/20 rounded bg-amber-900/30">
+            <div className="relative border border-white/[0.08] rounded bg-amber-950/30">
                 {STRINGS.map((string, stringIdx) => {
                     const fret = fingering[stringIdx];
                     const isMuted = fret === -1;
                     const displayFret = fret - minFret;
 
                     return (
-                        <div key={stringIdx} className="flex items-center h-4 border-b border-white/10 last:border-b-0">
-                            {/* String name */}
-                            <div className="w-4 text-[8px] text-white/40 text-center">
+                        <div key={stringIdx} className="flex items-center h-4 border-b border-white/[0.04] last:border-b-0">
+                            <div className="w-4 text-[7px] text-white/25 text-center font-mono">
                                 {isMuted ? 'x' : string}
                             </div>
 
-                            {/* Frets */}
                             {Array.from({ length: fretCount }, (_, fretIdx) => (
                                 <div
                                     key={fretIdx}
-                                    className="w-5 h-4 border-r border-white/10 last:border-r-0 flex items-center justify-center relative"
+                                    className="w-5 h-4 border-r border-white/[0.06] last:border-r-0 flex items-center justify-center relative"
                                 >
-                                    {/* Fret wire */}
-                                    <div className="absolute inset-y-0 right-0 w-px bg-white/20" />
-
-                                    {/* Finger position */}
+                                    <div className="absolute inset-y-0 right-0 w-px bg-white/[0.08]" />
                                     {displayFret === fretIdx && fret >= 0 && (
-                                        <div className="w-3 h-3 rounded-full bg-gradient-to-br from-purple-400 to-fuchsia-500 shadow-lg shadow-purple-500/50" />
+                                        <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 shadow-sm shadow-violet-500/40" />
                                     )}
                                 </div>
                             ))}
@@ -139,7 +130,6 @@ function GuitarMiniDiagram({ fingering }) {
     );
 }
 
-// Mini piano keyboard diagram
 function PianoMiniDiagram({ notes }) {
     const WHITE_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
     const BLACK_KEYS = { 'C#': 0, 'D#': 1, 'F#': 3, 'G#': 4, 'A#': 5 };
@@ -147,12 +137,10 @@ function PianoMiniDiagram({ notes }) {
     const normalizedNotes = notes.map(n => n.replace(/[0-9]/g, '').toUpperCase());
 
     const isHighlighted = (note) => {
-        // Handle enharmonic equivalents
         const equivalents = {
             'C#': ['Db'], 'D#': ['Eb'], 'F#': ['Gb'], 'G#': ['Ab'], 'A#': ['Bb'],
             'Db': ['C#'], 'Eb': ['D#'], 'Gb': ['F#'], 'Ab': ['G#'], 'Bb': ['A#']
         };
-
         if (normalizedNotes.includes(note)) return true;
         if (equivalents[note]?.some(eq => normalizedNotes.includes(eq))) return true;
         return false;
@@ -161,14 +149,13 @@ function PianoMiniDiagram({ notes }) {
     return (
         <div className="flex justify-center">
             <div className="relative">
-                {/* White keys */}
                 <div className="flex">
                     {WHITE_KEYS.map(key => (
                         <div
                             key={key}
-                            className={`w-5 h-12 border border-white/20 flex items-end justify-center pb-0.5 text-[8px] transition-all ${isHighlighted(key)
-                                    ? 'bg-gradient-to-b from-purple-400 to-purple-600 text-white font-bold shadow-lg shadow-purple-500/50'
-                                    : 'bg-white/90 text-gray-600'
+                            className={`w-5 h-12 border border-white/10 rounded-b-sm flex items-end justify-center pb-0.5 text-[7px] transition-all ${isHighlighted(key)
+                                ? 'bg-gradient-to-b from-violet-300 to-violet-500 text-white font-bold shadow-sm shadow-violet-500/30'
+                                : 'bg-white/80 text-gray-500'
                                 }`}
                         >
                             {key}
@@ -176,7 +163,6 @@ function PianoMiniDiagram({ notes }) {
                     ))}
                 </div>
 
-                {/* Black keys */}
                 <div className="absolute top-0 left-0 flex">
                     {WHITE_KEYS.map((key, i) => {
                         const blackKey = Object.entries(BLACK_KEYS).find(([_, idx]) => idx === i);
@@ -186,9 +172,9 @@ function PianoMiniDiagram({ notes }) {
                         return (
                             <div key={i} className="relative w-5">
                                 <div
-                                    className={`absolute -right-1.5 w-3 h-7 rounded-b z-10 flex items-end justify-center pb-0.5 text-[6px] ${isHighlighted(noteName)
-                                            ? 'bg-gradient-to-b from-fuchsia-400 to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/50'
-                                            : 'bg-gray-800'
+                                    className={`absolute -right-1.5 w-3 h-7 rounded-b z-10 ${isHighlighted(noteName)
+                                        ? 'bg-gradient-to-b from-fuchsia-400 to-fuchsia-600 shadow-sm shadow-fuchsia-500/30'
+                                        : 'bg-gray-700'
                                         }`}
                                 />
                             </div>

@@ -13,7 +13,7 @@ export default function Learning() {
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [chords, setChords] = useState(null);
-  const [instrument, setInstrument] = useState("piano"); // piano | guitar
+  const [instrument, setInstrument] = useState("piano");
   const [difficulty, setDifficulty] = useState(2);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -24,18 +24,14 @@ export default function Learning() {
   const audioRef = useRef(null);
   const audioUrlRef = useRef(null);
 
-  // Get current chord based on time
   const currentChordIndex = chords?.timeline?.findIndex((c, i) => {
     const next = chords.timeline[i + 1];
     return currentTime >= c.startTime && (!next || currentTime < next.startTime);
   }) ?? 0;
 
   const currentChord = chords?.timeline?.[currentChordIndex];
-
-  // Get available chords for current difficulty
   const availableChords = Object.keys(getChordsByDifficulty(difficulty));
 
-  // Adapt chord for current difficulty level
   const adaptedChord = useMemo(() => {
     if (!currentChord?.chord) return null;
     return getChordForDifficulty(currentChord.chord, difficulty);
@@ -49,7 +45,6 @@ export default function Learning() {
     setPracticeScore(null);
     setPracticeHistory([]);
 
-    // Create audio URL
     if (audioUrlRef.current) {
       URL.revokeObjectURL(audioUrlRef.current);
     }
@@ -58,8 +53,6 @@ export default function Learning() {
     try {
       const result = await uploadAudio(f);
       setAnalysis(result.analysis);
-
-      // Get chords
       const chordData = await getChords(result.fileId);
       setChords(chordData);
     } catch (error) {
@@ -71,7 +64,6 @@ export default function Learning() {
 
   function togglePlay() {
     if (!audioRef.current) return;
-
     if (isPlaying) {
       audioRef.current.pause();
     } else {
@@ -98,16 +90,13 @@ export default function Learning() {
   }
 
   function handlePracticeComplete() {
-    // Move to next chord or calculate final score
     const nextIndex = currentChordIndex + 1;
     if (chords?.timeline && nextIndex < chords.timeline.length) {
-      // Move to next chord
       if (audioRef.current) {
         audioRef.current.currentTime = chords.timeline[nextIndex].startTime;
         setCurrentTime(chords.timeline[nextIndex].startTime);
       }
     } else if (practiceHistory.length > 0) {
-      // Calculate final score
       const avgScore = Math.round(
         practiceHistory.reduce((sum, r) => sum + r.score, 0) / practiceHistory.length
       );
@@ -123,7 +112,6 @@ export default function Learning() {
     }
   }
 
-  // Get the target chord name (filter to available chords at difficulty level)
   const targetChordName = currentChord?.chord && availableChords.includes(currentChord.chord)
     ? currentChord.chord
     : null;
@@ -132,18 +120,18 @@ export default function Learning() {
     <main className="px-6 lg:px-10 pt-10 pb-20">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center justify-center px-4 py-2 rounded-full glass-surface text-white/70 text-sm mb-6">
-          <span className="w-2 h-2 rounded-full bg-green-400 mr-3 animate-pulse" />
+        <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-white/50 text-xs font-medium mb-6">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2.5 animate-pulse" />
           Interactive Learning Mode
         </div>
         <h1 className="text-4xl md:text-5xl font-display font-bold mb-3">
           Learn Guitar & Piano{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-amber-400">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-300">
             Faster
           </span>
         </h1>
-        <p className="text-white/60 text-lg">
-          Upload a song to see chords, finger positions, and practice with real-time MIDI/mic feedback.
+        <p className="text-white/40 text-base max-w-lg mx-auto">
+          Upload a song to see chords, finger positions, and practice with real-time feedback.
         </p>
       </div>
 
@@ -157,14 +145,17 @@ export default function Learning() {
       {/* Loading state */}
       {loading && (
         <div className="max-w-4xl mx-auto text-center py-16">
-          <div className="inline-block w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-white/60">Analyzing audio and detecting chords...</p>
+          <div className="relative w-16 h-16 mx-auto mb-4">
+            <div className="absolute inset-0 border-2 border-violet-500/20 rounded-full" />
+            <div className="absolute inset-0 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-white/40 text-sm">Analyzing audio and detecting chords...</p>
         </div>
       )}
 
       {/* Learning interface */}
       {!loading && chords && (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-5 animate-fade-in">
           {/* Audio player */}
           {audioUrlRef.current && (
             <audio
@@ -177,47 +168,47 @@ export default function Learning() {
           )}
 
           {/* Top controls */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 section-card p-4 rounded-2xl">
             <div className="flex items-center gap-4">
               <button
                 onClick={togglePlay}
-                className="w-14 h-14 rounded-full glow-btn flex items-center justify-center shadow-lg shadow-purple-500/30"
+                className="w-12 h-12 rounded-full glow-btn flex items-center justify-center"
               >
                 {isPlaying ? (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                   </svg>
                 ) : (
-                  <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 )}
               </button>
 
               <div>
-                <div className="text-white font-medium">{file?.name}</div>
-                <div className="text-white/50 text-sm">
+                <div className="text-white font-medium text-sm">{file?.name}</div>
+                <div className="text-white/30 text-xs font-mono">
                   Key: {chords.key} • {analysis?.tempo || 120} BPM
                 </div>
               </div>
             </div>
 
             {/* Instrument toggle */}
-            <div className="flex items-center gap-2 p-1 rounded-full bg-white/5">
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
               <button
                 onClick={() => setInstrument("piano")}
-                className={`px-6 py-2 rounded-full transition-all ${instrument === "piano"
-                  ? "bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white"
-                  : "text-white/60 hover:text-white"
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${instrument === "piano"
+                  ? "bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/20"
+                  : "text-white/40 hover:text-white/70"
                   }`}
               >
                 🎹 Piano
               </button>
               <button
                 onClick={() => setInstrument("guitar")}
-                className={`px-6 py-2 rounded-full transition-all ${instrument === "guitar"
-                  ? "bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white"
-                  : "text-white/60 hover:text-white"
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${instrument === "guitar"
+                  ? "bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/20"
+                  : "text-white/40 hover:text-white/70"
                   }`}
               >
                 🎸 Guitar
@@ -225,19 +216,18 @@ export default function Learning() {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Practice mode toggle */}
               <button
                 onClick={() => {
                   setPracticeMode(!practiceMode);
                   setPracticeScore(null);
                   setPracticeHistory([]);
                 }}
-                className={`px-4 py-2 rounded-full font-medium transition-all ${practiceMode
-                  ? 'bg-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/30'
-                  : 'glass-surface text-white/70 hover:text-white'
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${practiceMode
+                  ? 'bg-fuchsia-500/20 text-fuchsia-400 ring-1 ring-fuchsia-500/30'
+                  : 'bg-white/[0.04] text-white/40 hover:text-white/70 border border-white/[0.06]'
                   }`}
               >
-                {practiceMode ? '🎯 Practice ON' : '🎯 Practice Mode'}
+                {practiceMode ? '🎯 Practice ON' : '🎯 Practice'}
               </button>
 
               <button
@@ -249,17 +239,17 @@ export default function Learning() {
                   setPracticeMode(false);
                   setPracticeHistory([]);
                 }}
-                className="px-4 py-2 rounded-full glass-surface text-white/70 hover:text-white transition"
+                className="px-4 py-2 rounded-lg bg-white/[0.04] border border-white/[0.06] text-white/40 hover:text-white/70 transition text-sm"
               >
-                Upload New Song
+                New Song
               </button>
             </div>
           </div>
 
           {/* Main content grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left column - Chord display */}
-            <div className="lg:col-span-1 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* Left column */}
+            <div className="lg:col-span-1 space-y-5">
               <ChordDisplay
                 chords={chords.timeline}
                 currentTime={currentTime}
@@ -273,19 +263,19 @@ export default function Learning() {
             </div>
 
             {/* Right column - Instrument & Practice */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-5">
               {/* Simplified chord indicator */}
               {adaptedChord?.isSimplified && (
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-center justify-between">
+                <div className="bg-amber-500/[0.06] border border-amber-500/15 rounded-xl p-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-amber-400">💡</span>
-                    <span className="text-white/70 text-sm">
-                      Simplified: <span className="font-bold text-amber-300">{adaptedChord.original}</span>
+                    <span className="text-amber-400 text-sm">💡</span>
+                    <span className="text-white/50 text-xs">
+                      Simplified: <span className="font-semibold text-amber-300">{adaptedChord.original}</span>
                       {" → "}
-                      <span className="font-bold text-green-400">{adaptedChord.chord}</span>
+                      <span className="font-semibold text-emerald-400">{adaptedChord.chord}</span>
                     </span>
                   </div>
-                  <span className="text-xs text-white/40">Level {difficulty}</span>
+                  <span className="text-[10px] text-white/25 font-mono">Level {difficulty}</span>
                 </div>
               )}
 
@@ -316,17 +306,17 @@ export default function Learning() {
                   onPracticeComplete={handlePracticeComplete}
                 />
               ) : (
-                <div className="bg-surface/50 rounded-2xl p-6 border border-white/10">
+                <div className="section-card rounded-2xl p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-white">Practice Mode</h3>
+                    <h3 className="text-base font-semibold text-white">Practice Mode</h3>
                     <button
                       onClick={() => setPracticeMode(true)}
-                      className="px-6 py-2 rounded-full glow-btn font-semibold shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition"
+                      className="px-5 py-2 rounded-lg glow-btn font-semibold text-sm"
                     >
-                      Start Practice
+                      <span>Start Practice</span>
                     </button>
                   </div>
-                  <p className="text-white/50 text-sm">
+                  <p className="text-white/30 text-sm leading-relaxed">
                     Enable practice mode to use your MIDI keyboard or microphone to play along.
                     The system will detect your chords and give you real-time feedback.
                   </p>
@@ -335,26 +325,26 @@ export default function Learning() {
 
               {/* Score display */}
               {practiceScore && (
-                <div className="bg-surface/50 rounded-2xl p-6 border border-purple-500/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">Practice Results</h3>
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="text-center p-4 rounded-xl bg-white/5">
-                      <div className="text-3xl font-bold text-green-400">{practiceScore.accuracy}%</div>
-                      <div className="text-xs text-white/50 mt-1">Accuracy</div>
+                <div className="section-card rounded-2xl p-6 ring-1 ring-violet-500/20">
+                  <h3 className="text-base font-semibold text-white mb-4">Practice Results</h3>
+                  <div className="grid grid-cols-4 gap-3">
+                    <div className="text-center p-4 rounded-xl bg-white/[0.03]">
+                      <div className="text-2xl font-bold text-emerald-400 font-mono">{practiceScore.accuracy}%</div>
+                      <div className="text-[10px] text-white/30 mt-1 uppercase tracking-wider">Accuracy</div>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-white/5">
-                      <div className="text-3xl font-bold text-purple-400">{practiceScore.timing}%</div>
-                      <div className="text-xs text-white/50 mt-1">Avg Score</div>
+                    <div className="text-center p-4 rounded-xl bg-white/[0.03]">
+                      <div className="text-2xl font-bold text-violet-400 font-mono">{practiceScore.timing}%</div>
+                      <div className="text-[10px] text-white/30 mt-1 uppercase tracking-wider">Avg Score</div>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-white/5">
-                      <div className="text-3xl font-bold text-white">{practiceScore.overall}%</div>
-                      <div className="text-xs text-white/50 mt-1">Overall</div>
+                    <div className="text-center p-4 rounded-xl bg-white/[0.03]">
+                      <div className="text-2xl font-bold text-white font-mono">{practiceScore.overall}%</div>
+                      <div className="text-[10px] text-white/30 mt-1 uppercase tracking-wider">Overall</div>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20">
-                      <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400">
+                    <div className="text-center p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10">
+                      <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
                         {practiceScore.grade}
                       </div>
-                      <div className="text-xs text-white/50 mt-1">Grade</div>
+                      <div className="text-[10px] text-white/30 mt-1 uppercase tracking-wider">Grade</div>
                     </div>
                   </div>
                   <button
@@ -366,7 +356,7 @@ export default function Learning() {
                         setCurrentTime(0);
                       }
                     }}
-                    className="mt-4 w-full py-3 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition"
+                    className="mt-4 w-full py-2.5 rounded-xl bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/80 transition text-sm font-medium"
                   >
                     Practice Again
                   </button>
